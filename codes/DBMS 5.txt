@@ -1,0 +1,28 @@
+CREATE TABLE Stud_Marks (
+    name VARCHAR(255),
+    total_marks INT
+);
+
+
+
+
+CREATE PROCEDURE proc_Grade(IN p_name VARCHAR(255), IN p_total_marks INT)
+BEGIN
+    DECLARE v_class VARCHAR(255);
+    
+    IF p_total_marks >= 990 AND p_total_marks <= 1500 THEN
+        IF p_total_marks >= 989 THEN
+            SET v_class = 'Distinction';
+        ELSEIF p_total_marks >= 900 THEN
+            SET v_class = 'First Class';
+        ELSEIF p_total_marks >= 825 THEN
+            SET v_class = 'Higher Second Class';
+        ELSE
+            SET v_class = 'Pass';
+        END IF;
+    ELSE
+        SET v_class = 'Fail';
+    END IF;
+    
+    INSERT INTO Result (Name, Class) VALUES (p_name, v_class);
+END

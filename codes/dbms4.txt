@@ -1,0 +1,87 @@
+CREATE TABLE Borrower (
+    ROLL_NO INT PRIMARY KEY,
+    NAME VARCHAR(255),
+    DATEOFISSUE DATE,
+    NAMEOFBOOK VARCHAR(255),
+    STATUS CHAR(1)
+);
+
+
+
+
+CREATE TABLE Fine (
+    ROLL_NO INT,
+    F_DATE DATE,
+    AMT DECIMAL(10, 2)
+);
+
+
+
+
+
+
+
+PROCEDURE 
+
+
+CREATE PROCEDURE CALCULATE_FINE(IN R INT, IN NB VARCHAR(20))
+BEGIN
+    DECLARE ID DATE;
+    DECLARE CD DATE;
+    DECLARE v_NumDays INT;
+    DECLARE v_FineAmt DECIMAL(10, 2);
+    
+    SELECT DATEOFISSUE INTO ID FROM borrower WHERE ROLL_NO = R AND NAMEOFBOOK = NB;
+    
+    IF ID IS NOT NULL THEN
+        SET CD = CURDATE();
+        
+        SET v_NumDays = DATEDIFF(CD, ID);
+        
+        IF v_NumDays >= 15 AND v_NumDays <= 30 THEN
+            SET v_FineAmt = v_NumDays * 5;
+        ELSEIF v_NumDays > 30 THEN
+            SET v_FineAmt = v_NumDays * 50;
+        ELSE
+            SET v_FineAmt = 0;
+        END IF;
+        
+        UPDATE Borrower SET STATUS = 'R' WHERE ROLL_NO = R AND NAMEOFBOOK = NB;
+        INSERT INTO FINE VALUES (R, CURDATE(), v_FineAmt);
+        
+        SELECT v_FineAmt AS FineAmount;
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Book not found or is not borrowed';
+    END IF;
+
+
+
+
+        OR
+
+
+
+
+
+
+ CREATE TABLE areas (
+         radius DECIMAL(10, 2),
+         area DECIMAL(10, 2)
+     );
+
+
+
+
+CREATE PROCEDURE CAL_AREA(IN R INT)
+BEGIN
+    DECLARE AREA DECIMAL(10, 2);
+    
+    IF R BETWEEN 5 AND 9 THEN
+        SET AREA = R * R * 3.14;
+        INSERT INTO areas (radius, area) VALUES (R, AREA);
+    ELSE
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'INVALID RADIUS RANGE';
+    END IF;
+END

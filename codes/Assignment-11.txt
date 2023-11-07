@@ -1,0 +1,76 @@
+> show dbs
+3313_9  0.000GB
+3330    0.000GB
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+manish  0.000GB
+test    0.000GB
+> use manish
+switched to db manish
+> db.createCollection("orders")
+{ "ok" : 1 }
+> db.orders.insert({"Cust_ID":"A123","Amount":"500","Status":"A"})
+WriteResult({ "nInserted" : 1 })
+> db.orders.insert({"Cust_ID":"A123","Amount":"250","Status":"A"});
+WriteResult({ "nInserted" : 1 })
+> db.orders.insert({"Cust_ID":"B212","Amount":"200","Status":"A"});
+WriteResult({ "nInserted" : 1 })
+> db.orders.insert({"Cust_ID":"A123","Amount":"300","Status":"D"});
+WriteResult({ "nInserted" : 1 })
+> db.orders.find()
+{ "_id" : ObjectId("635153e571cd95ab8e93d98b"), "Cust_ID" : "A123", "Amount" : "500", "Status" : "A" }
+{ "_id" : ObjectId("635153f571cd95ab8e93d98c"), "Cust_ID" : "A123", "Amount" : "250", "Status" : "A" }
+{ "_id" : ObjectId("6351540071cd95ab8e93d98d"), "Cust_ID" : "B212", "Amount" : "200", "Status" : "A" }
+{ "_id" : ObjectId("6351540a71cd95ab8e93d98e"), "Cust_ID" : "A123", "Amount" : "300", "Status" : "D" }
+> db.orders.mapReduce(function(){emit(this.Cust_ID,this.Amount);},function(key, values) {return Array.sum( values)},{query:{"Status":"A"},out: "order_totals"})
+{
+	"result" : "order_totals",
+	"timeMillis" : 437,
+	"counts" : {
+		"input" : 3,
+		"emit" : 3,
+		"reduce" : 1,
+		"output" : 2
+	},
+	"ok" : 1
+}
+> var mapFunc1 = function(){emit(this.Cust_ID,this.Amount);};
+>  var reduceFunc1 = function(keyCustID,valuePrices){return Array.sum(valuePrices);};
+> db.orders.mapReduce(mapFunc1,reduceFunc1,{out:"Map_Example2"})
+{
+	"result" : "Map_Example2",
+	"timeMillis" : 315,
+	"counts" : {
+		"input" : 4,
+		"emit" : 4,
+		"reduce" : 1,
+		"output" : 2
+	},
+	"ok" : 1
+}
+> db.order_totals.find()
+{ "_id" : "A123", "value" : "500250" }
+{ "_id" : "B212", "value" : "200" }
+> db.Map_Example2.find()
+{ "_id" : "A123", "value" : "500250300" }
+{ "_id" : "B212", "value" : "200" }
+
+> db.orders.mapReduce(function(){emit(this.Cust_ID,this.Amount);},function(key, values) {return Array.avg( values)},{query:{"Status":"A"},out: "order_totals"})
+{
+	"result" : "order_totals",
+	"timeMillis" : 346,
+	"counts" : {
+		"input" : 3,
+		"emit" : 3,
+		"reduce" : 1,
+		"output" : 2
+	},
+	"ok" : 1
+}
+> db.order_totals.find().pretty()
+{ "_id" : "A123", "value" : 250125 }
+{ "_id" : "B212", "value" : "200" }
+> 
+
+

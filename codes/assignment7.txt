@@ -1,0 +1,155 @@
+
+----------------------------INSERT---------------------------
+create trigger after_insert 
+after insert on Borrower 
+for each row 
+insert into library_audit values(new.Rollno, new.Name, new.dateofissue, new.Nameofbook, 'INSERT', current_timestamp);
+
+ -- After INSERT Trigger
+mysql> create trigger after_insert 
+    -> after insert on Borrower 
+    -> for each row 
+    -> insert into library_audit values(new.Rollno, new.Name, new.dateofissue, new.Nameofbook, new.status, current_timestamp);
+    -> $
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> select* from Borrower;$
++--------+---------+-------------+------------+----------+
+| RollNo | Name    | Dateofissue | NameofBook | Status   |
++--------+---------+-------------+------------+----------+
+|   3301 | Aakash  | 2023-08-02  | SPOS       | issued   |
+|   3317 | Asmita  | 2023-07-05  | CNS        | returned |
+|   3331 | Khushi  | 2023-04-05  | CNS        | issued   |
+|   3354 | Suraj K | 2023-08-03  | DBMS       | issued   |
+|   3356 | Tejaswi | 2023-08-01  | DBMS       | issued   |
++--------+---------+-------------+------------+----------+
+5 rows in set (0.00 sec)
+
+mysql> select* from library_audit;$
+Empty set (0.00 sec)
+
+mysql> insert into Borrower values(3357,'Utkarsh','2023-05-05','DBMS','issued');$
+
+mysql> select* from Borrower;$
++--------+---------+-------------+------------+----------+
+| RollNo | Name    | Dateofissue | NameofBook | Status   |
++--------+---------+-------------+------------+----------+
+|   3301 | Aakash  | 2023-08-02  | SPOS       | issued   |
+|   3317 | Asmita  | 2023-07-05  | CNS        | returned |
+|   3331 | Khushi  | 2023-04-05  | CNS        | issued   |
+|   3354 | Suraj K | 2023-08-03  | DBMS       | issued   |
+|   3356 | Tejaswi | 2023-08-01  | DBMS       | issued   |
+|   3357 | Utkarsh | 2023-05-05  | DBMS       | issued   |
++--------+---------+-------------+------------+----------+
+6 rows in set (0.00 sec)
+
+mysql> select* from library_audit;$
++--------+---------+-------------+------------+--------+---------------------+
+| Rollno | Name    | dateofissue | Nameofbook | status | ts                  |
++--------+---------+-------------+------------+--------+---------------------+
+|   3357 | Utkarsh | 2023-05-05  | DBMS       | INSERT | 2023-03-02 19:33:59 |
++--------+---------+-------------+------------+--------+---------------------+
+1 row in set (0.00 sec)
+
+
+----------------------------DELETE--------------------------
+create trigger after_delete 
+after delete on Borrower 
+for each row 
+insert into library_audit values(old.Rollno, old.Name, old.dateofissue, old.Nameofbook, 'Delete', current_timestamp);
+
+mysql>  -- after DELETE Trigger
+mysql> create trigger after_delete 
+    -> after delete on Borrower 
+    -> for each row 
+    -> insert into library_audit values(old.Rollno, old.Name, old.dateofissue, old.Nameofbook, old.status, current_timestamp);
+    -> $
+Query OK, 0 rows affected (0.10 sec)
+mysql> create trigger after_delete 
+    -> after delete on Borrower 
+    -> for each row 
+    -> insert into library_audit values(old.Rollno, old.Name, old.dateofissue, old.Nameofbook, 'Delete', current_timestamp);
+    -> $
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> select* from Borrower;$
++--------+---------+-------------+------------+----------+
+| RollNo | Name    | Dateofissue | NameofBook | Status   |
++--------+---------+-------------+------------+----------+
+|   3301 | Aakash  | 2023-08-02  | SPOS       | issued   |
+|   3317 | Asmita  | 2023-07-05  | CNS        | returned |
+|   3331 | Khushi  | 2023-04-05  | CNS        | issued   |
+|   3354 | Suraj K | 2023-08-03  | DBMS       | issued   |
+|   3356 | Tejaswi | 2023-08-01  | DBMS       | issued   |
+|   3357 | Utkarsh | 2023-05-05  | DBMS       | issued   |
++--------+---------+-------------+------------+----------+
+6 rows in set (0.00 sec)
+
+mysql> delete from Borrower where RollNo=3301;$
+Query OK, 1 row affected (0.03 sec)
+
+mysql> select* from library_audit;$
++--------+---------+-------------+------------+--------+---------------------+
+| Rollno | Name    | dateofissue | Nameofbook | status | ts                  |
++--------+---------+-------------+------------+--------+---------------------+
+|   3357 | Utkarsh | 2023-05-05  | DBMS       | INSERT | 2023-03-02 19:33:59 |
+|   3301 | Aakash  | 2023-08-02  | SPOS       | Delete | 2023-03-02 19:35:27 |
++--------+---------+-------------+------------+--------+---------------------+
+2 rows in set (0.00 sec)
+
+
+----------------------------UPDATE-----------------------
+create trigger after_update 
+after update on Borrower 
+for each row 
+insert into library_audit values(new.Rollno, new.Name, new.dateofissue, new.Nameofbook, Update', current_timestamp);
+
+mysql> -- After UPDATE Trigger
+mysql> create trigger after_update 
+    -> after update on Borrower 
+    -> for each row 
+    -> insert into library_audit values(new.Rollno, new.Name, new.dateofissue, new.Nameofbook, 'Update', current_timestamp);
+    -> $
+Query OK, 0 rows affected (0.10 sec)
+mysql> select* from Borrower;$
++--------+---------+-------------+------------+----------+
+| RollNo | Name    | Dateofissue | NameofBook | Status   |
++--------+---------+-------------+------------+----------+
+|   3317 | Asmita  | 2023-07-05  | CNS        | returned |
+|   3331 | Khushi  | 2023-04-05  | CNS        | issued   |
+|   3354 | Suraj K | 2023-08-03  | DBMS       | issued   |
+|   3356 | Tejaswi | 2023-08-01  | DBMS       | issued   |
+|   3357 | Utkarsh | 2023-05-05  | DBMS       | issued   |
++--------+---------+-------------+------------+----------+
+5 rows in set (0.00 sec)
+
+mysql> Update Borrower 
+    -> set Nameofbook='CNS'
+    -> where RollNo=3356;$
+Query OK, 1 row affected (0.03 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+mysql> Select* from Borrower;$
++--------+---------+-------------+------------+----------+
+| RollNo | Name    | Dateofissue | NameofBook | Status   |
++--------+---------+-------------+------------+----------+
+|   3317 | Asmita  | 2023-07-05  | CNS        | returned |
+|   3331 | Khushi  | 2023-04-05  | CNS        | issued   |
+|   3354 | Suraj K | 2023-08-03  | DBMS       | issued   |
+|   3356 | Tejaswi | 2023-08-01  | CNS        | issued   |
+|   3357 | Utkarsh | 2023-05-05  | DBMS       | issued   |
++--------+---------+-------------+------------+----------+
+5 rows in set (0.00 sec)
+
+mysql> Select* from library_audit;$
++--------+---------+-------------+------------+--------+---------------------+
+| Rollno | Name    | dateofissue | Nameofbook | status | ts                  |
++--------+---------+-------------+------------+--------+---------------------+
+|   3357 | Utkarsh | 2023-05-05  | DBMS       | INSERT | 2023-03-02 19:33:59 |
+|   3301 | Aakash  | 2023-08-02  | SPOS       | Delete | 2023-03-02 19:35:27 |
+|   3356 | Tejaswi | 2023-08-01  | CNS        | Update | 2023-03-02 19:48:33 |
++--------+---------+-------------+------------+--------+---------------------+
+3 rows in set (0.00 sec)
+
+mysql> 
+
+

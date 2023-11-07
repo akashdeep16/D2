@@ -1,0 +1,154 @@
+test> use assignment11
+switched to db assignment11
+assignment11> db.createCollection('order')
+{ ok: 1 }
+assignment11> db.order.insert([{Customer_id:'A1',Amount:400,Status:'P'},{Cusassignment11> db.order.insertMany([{Customer_id:'A1',Amount:400,Status:'P'},{Customer_id:'B1',Amount:300,Status:'D'},{Customer_id:'A1',Amount:200,Status:'F'},{Customer_id:'C1',Amount:200,Status:'F'},{Customer_id:'B1',Amount:700,Status:'P'},{Customer_id:'B1',Amount:800,Status:'P'}])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId("653850d027e75e5fd8d0b8d8"),
+    '1': ObjectId("653850d027e75e5fd8d0b8d9"),
+    '2': ObjectId("653850d027e75e5fd8d0b8da"),
+    '3': ObjectId("653850d027e75e5fd8d0b8db"),
+    '4': ObjectId("653850d027e75e5fd8d0b8dc"),
+    '5': ObjectId("653850d027e75e5fd8d0b8dd")
+  }
+}
+assignment11>   db.order.insertMany([{Customer_id:'A1',Amount:700,Status:'D'},{Customer_id:'B1',Amount:1200,Status:'D'},{Customer_id:'C1',Amount:150,Status:'D'},{Customer_id:'C1',Amount:845,Status:'F'},{Customer_id:'A1',Amount:800,Status:'P'},{Customer_id:'A1',Amount:550,Status:'D'},{Customer_id:'B1',Amount:780,Status:'F'},{Customer_id:'C1',Amount:1500,Status:'D'}])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId("653850fa27e75e5fd8d0b8de"),
+    '1': ObjectId("653850fa27e75e5fd8d0b8df"),
+    '2': ObjectId("653850fa27e75e5fd8d0b8e0"),
+    '3': ObjectId("653850fa27e75e5fd8d0b8e1"),
+    '4': ObjectId("653850fa27e75e5fd8d0b8e2"),
+    '5': ObjectId("653850fa27e75e5fd8d0b8e3"),
+    '6': ObjectId("653850fa27e75e5fd8d0b8e4"),
+    '7': ObjectId("653850fa27e75e5fd8d0b8e5")
+  }
+}
+assignment11> db.order.find()
+[
+  {
+    _id: ObjectId("653850d027e75e5fd8d0b8d8"),
+    Customer_id: 'A1',
+    Amount: 400,
+    Status: 'P'
+  },
+  {
+    _id: ObjectId("653850d027e75e5fd8d0b8d9"),
+    Customer_id: 'B1',
+    Amount: 300,
+    Status: 'D'
+  },
+  {
+    _id: ObjectId("653850d027e75e5fd8d0b8da"),
+    Customer_id: 'A1',
+    Amount: 200,
+    Status: 'F'
+  },
+  {
+    _id: ObjectId("653850d027e75e5fd8d0b8db"),
+    Customer_id: 'C1',
+    Amount: 200,
+    Status: 'F'
+  },
+  {
+    _id: ObjectId("653850d027e75e5fd8d0b8dc"),
+    Customer_id: 'B1',
+    Amount: 700,
+    Status: 'P'
+  },
+  {
+    _id: ObjectId("653850d027e75e5fd8d0b8dd"),
+    Customer_id: 'B1',
+    Amount: 800,
+    Status: 'P'
+  },
+  {
+    _id: ObjectId("653850fa27e75e5fd8d0b8de"),
+    Customer_id: 'A1',
+    Amount: 700,
+    Status: 'D'
+  },
+  {
+    _id: ObjectId("653850fa27e75e5fd8d0b8df"),
+    Customer_id: 'B1',
+    Amount: 1200,
+    Status: 'D'
+  },
+  {
+    _id: ObjectId("653850fa27e75e5fd8d0b8e0"),
+    Customer_id: 'C1',
+    Amount: 150,
+    Status: 'D'
+  },
+  {
+    _id: ObjectId("653850fa27e75e5fd8d0b8e1"),
+    Customer_id: 'C1',
+    Amount: 845,
+    Status: 'F'
+  },
+  {
+    _id: ObjectId("653850fa27e75e5fd8d0b8e2"),
+    Customer_id: 'A1',
+    Amount: 800,
+    Status: 'P'
+  },
+  {
+    _id: ObjectId("653850fa27e75e5fd8d0b8e3"),
+    Customer_id: 'A1',
+    Amount: 550,
+    Status: 'D'
+  },
+  {
+    _id: ObjectId("653850fa27e75e5fd8d0b8e4"),
+    Customer_id: 'B1',
+    Amount: 780,
+    Status: 'F'
+  },
+  {
+    _id: ObjectId("653850fa27e75e5fd8d0b8e5"),
+    Customer_id: 'C1',
+    Amount: 1500,
+    Status: 'D'
+  }
+]
+assignment11> var mapfunction=function(){if(this.Status=='D')emit(this.Customer_id,this.Amount)};
+
+assignment11> var reducefunction=function(key,values){return Array.sum(values);};
+
+assignment11> db.order.mapReduce(mapfunction,reducefunction,{'out':'delieverdOrders'})
+{ result: 'delieverdOrders', ok: 1 }
+assignment11>  db.delieverdOrders.find()
+[
+  { _id: 'B1', value: 1500 },
+  { _id: 'A1', value: 1250 },
+  { _id: 'C1', value: 1650 }
+]
+assignment11> var mapfunction1=function(){emit(this.Customer_id,this.Amount)};
+
+assignment11> var reducefunction1=function(key,values){return Math.min.apply(Math,values);};
+
+assignment11> db.order.mapReduce(mapfunction1,reducefunction1,{'out':'minAmtOrder'})
+{ result: 'minAmtOrder', ok: 1 }
+assignment11> db.minAmtOrder.find()
+[
+  { _id: 'B1', value: 300 },
+  { _id: 'C1', value: 150 },
+  { _id: 'A1', value: 200 }
+]
+assignment11> var mapfunction2=function(){if(this.Status=='F')emit(this.Customer_id,this.Amount)};
+
+assignment11> var reducefunction2=function(key,values){return Math.max.apply(Math,values);};
+
+assignment11> db.order.mapReduce(mapfunction2,reducefunction2,{'out':'maxAmtFailedOrder'})
+{ result: 'maxAmtFailedOrder', ok: 1 }
+assignment11> db.maxAmtFailedOrder.find()
+[
+  { _id: 'C1', value: 845 },
+  { _id: 'A1', value: 200 },
+  { _id: 'B1', value: 780 }
+]
+assignment11>

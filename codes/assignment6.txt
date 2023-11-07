@@ -1,0 +1,83 @@
+delimiter $
+create procedure copydata()
+begin
+declare num int;
+declare flag int default 0;
+declare cur cursor for select roll_no from old_roll_call;
+declare continue handler for not found set flag=1;
+open cur;
+iterator: loop
+if(flag=1) then leave iterator;
+end if;
+fetch cur into num;
+if not exists(select roll_no, Name from new_roll_call where roll_no=num) then
+insert into  new_roll_call select roll_no, Name from old_roll_call where roll_no=num;
+end if;
+end loop iterator;
+close cur;
+end 
+$
+
+
+mysql> create table old_roll_call(roll_no int, Name varchar(20));
+    -> $
+Query OK, 0 rows affected (0.30 sec)
+
+mysql> create table new_roll_call(roll_no int, Name varchar(20));
+    -> $
+Query OK, 0 rows affected (0.29 sec)
+
+mysql> insert into pld_roll_call values(1,'ab'),(2,'cd'),(3,'fg'),(8,'lg'),(5,'xy');$
+ERROR 1146 (42S02): Table 'student.pld_roll_call' doesn't exist
+mysql> insert into old_roll_call values(1,'ab'),(2,'cd'),(3,'fg'),(8,'lg'),(5,'xy');$
+Query OK, 5 rows affected (0.02 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> select* from old_roll;
+    -> $
+ERROR 1146 (42S02): Table 'student.old_roll' doesn't exist
+mysql> select* from old_roll_call;
+    -> $
++---------+------+
+| roll_no | Name |
++---------+------+
+|       1 | ab   |
+|       2 | cd   |
+|       3 | fg   |
+|       8 | lg   |
+|       5 | xy   |
++---------+------+
+5 rows in set (0.00 sec)
+
+mysql> insert into new_roll_call values(1,'ab'),(2,'cd'),(3,'fg');$
+Query OK, 3 rows affected (0.04 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select* from new_roll_call;
+    -> $
++---------+------+
+| roll_no | Name |
++---------+------+
+|       1 | ab   |
+|       2 | cd   |
+|       3 | fg   |
++---------+------+
+3 rows in set (0.00 sec)
+
+
+mysql> call copydata();$
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> select *from new_roll_call;$
++---------+------+
+| roll_no | Name |
++---------+------+
+|       1 | ab   |
+|       2 | cd   |
+|       3 | fg   |
+|       8 | lg   |
+|       5 | xy   |
++---------+------+
+5 rows in set (0.00 sec)
+
+

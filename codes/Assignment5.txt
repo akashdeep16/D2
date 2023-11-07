@@ -1,0 +1,160 @@
+create procedure proc_grad2(in marks int, out class varchar(15))
+begin
+if(marks<=1500 and marks>=990) then set class='DIST';
+end if;
+if(marks<=989 and marks>=900) then set class='FIRST CLASS';
+end if;
+if(marks<=899 and marks>=825) then set class='HSC';
+end if;
+if(marks<=825 and marks>=679) then set class='SEC CLASS';
+end if;
+if(marks<=679 and marks>=500) then set class='PASS';
+end if;
+if(marks<500) then set class='FAIL';
+end if;
+end;
+$
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               create function result2(roll_no int) 
+returns int deterministic 
+begin
+declare fmarks int;
+declare grade varchar(15);
+declare stname char(15);
+select stud_marks.total_marks, stud_marks.Name into fmarks, stname from stud_marks where stud_marks.rollNo= roll_no;
+call proc_grad2(fmarks, @grade);
+insert into result values(roll_no, stname, @grade);
+return roll_no;
+end;
+$
+
+
+mysql> create table stud_marks(Name varchar(20), total_marks int);
+Query OK, 0 rows affected (0.28 sec)
+
+mysql> create table result(roll int, Name varchar(20), class varchar(15));
+Query OK, 0 rows affected (0.30 sec)
+
+mysql> insert into stud_marks('Tejaswi',1345);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''Tejaswi',1345)' at line 1
+mysql> insert into stud_marks values('Tejaswi',1345);
+Query OK, 1 row affected (0.07 sec)
+
+mysql> insert into stud_marks values('Harshal',1245);
+Query OK, 1 row affected (0.03 sec)
+
+mysql> insert into stud_marks values('Kaku',1445);
+Query OK, 1 row affected (0.04 sec)
+
+mysql> select result2(3356);
+    -> $
++--------------+
+| result(3356) |
++--------------+
+|         3356 |
++--------------+
+1 row in set (0.06 sec)
+
+mysql> select result2(3317);$
++--------------+
+| result(3317) |
++--------------+
+|         3317 |
++--------------+
+1 row in set (0.04 sec)
+
+mysql> select result2(3354);$
++--------------+
+| result(3354) |
++--------------+
+|         3354 |
++--------------+
+1 row in set (0.04 sec)
+
+mysql> select *from result;
+    -> $
++------+---------+-------+
+| roll | Name    | class |
++------+---------+-------+
+| 3356 | Tejaswi | DIST  |
+| 3317 | Harshal | DIST  |
+| 3354 | Kaku    | DIST  |
++------+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> insert into stud_marks values('rbc',400,3363);$
+Query OK, 1 row affected (0.04 sec)
+
+mysql> select result2(3363);$
++---------------+
+| result2(3363) |
++---------------+
+|          3363 |
++---------------+
+1 row in set (0.04 sec)
+
+mysql> select *from result;$
++------+---------+-------+
+| roll | Name    | class |
++------+---------+-------+
+| 3356 | Tejaswi | DIST  |
+| 3317 | Harshal | DIST  |
+| 3354 | Kaku    | DIST  |
+| 3316 | Rsa     | PASS  |
+| 3315 | Rsb     | PASS  |
+| 3363 | rbc     | FAIL  |
++------+---------+-------+
+6 rows in set (0.00 sec)
+
+mysql> insert into stud_marks values('rcc',800,3364);$
+Query OK, 1 row affected (0.04 sec)
+
+mysql> select result2(3364);$
++---------------+
+| result2(3364) |
++---------------+
+|          3364 |
++---------------+
+1 row in set (0.03 sec)
+
+mysql> select *from result;$
++------+---------+-----------+
+| roll | Name    | class     |
++------+---------+-----------+
+| 3356 | Tejaswi | DIST      |
+| 3317 | Harshal | DIST      |
+| 3354 | Kaku    | DIST      |
+| 3316 | Rsa     | PASS      |
+| 3315 | Rsb     | PASS      |
+| 3363 | rbc     | FAIL      |
+| 3364 | rcc     | SEC CLASS |
++------+---------+-----------+
+7 rows in set (0.00 sec)
+
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+create procedure set_fi(in roll_no int)
+     begin
+     declare fine_amt int;
+     declare date_diff int;
+     declare issue_date date;
+     declare return_date date;
+     select dateofissue into issue_date from borrower where borrower.rollno=roll_no;
+     select curdate() into return_date;
+     select datediff(return_date,issue_date) into date_diff;
+     set fine_amt=0;
+     if date_diff > 15 and date_diff<=30 then
+      set fine_amt=date_diff*5;
+    else if date_diff > 30 then
+     set fine_amt=date_diff*50;     
+     end if;
+     insert into fine values(roll_no,return_date,fine_amt);
+     update borrower set status='R' where borrower.rollno=roll_no;
+     end //
+
+
+
+
+
+

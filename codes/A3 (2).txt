@@ -1,0 +1,573 @@
+Enter password: ******
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 41
+Server version: 8.0.34 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2023, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use movie;
+Database changed
+mysql> show tables
+    -> ;
++-----------------+
+| Tables_in_movie |
++-----------------+
+| actor           |
+| cast            |
+| direct          |
+| director        |
+| movie           |
++-----------------+
+5 rows in set (0.01 sec)
+
+mysql> select * from actor;
++------+------------+----------+--------+
+| a_id | f_name     | l_name   | salary |
++------+------------+----------+--------+
+|    1 | Amitabh    | Bachchan | 500000 |
+|    2 | Dharmendra | Deol     | 400000 |
+|    3 | Hrithik    | Roshan   | 600000 |
+|    4 | Leonardo   | DiCaprio | 800000 |
+|    5 | Keanu      | Reeves   | 350000 |
++------+------------+----------+--------+
+5 rows in set (0.00 sec)
+
+mysql> select * from cast;
++------+------+-------+
+| m_id | a_id | role  |
++------+------+-------+
+|    1 |    1 | Veeru |
+|    1 |    2 | Jai   |
+|    2 |    3 | Rohan |
+|    3 |    4 | Cobb  |
+|    4 |    5 | Neo   |
+|    5 |    2 | Neo   |
++------+------+-------+
+6 rows in set (0.00 sec)
+
+mysql> select * from direct;
++------+------+
+| m_id | d_id |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    3 |
+|    4 |    4 |
+|    5 |    5 |
++------+------+
+5 rows in set (0.00 sec)
+
+mysql> select * from director;
++------+-------------+-----------+--------+
+| d_id | fname       | lname     | gender |
++------+-------------+-----------+--------+
+|    1 | Ramesh      | Sippy     | Male   |
+|    2 | Karan       | Johar     | Male   |
+|    3 | Christopher | Nolan     | Male   |
+|    4 | James       | Cameron   | Male   |
+|    5 | Lana        | Wachowski | Female |
++------+-------------+-----------+--------+
+5 rows in set (0.00 sec)
+
+mysql> select * from movie;
++------+------------+--------------+--------+-----------+
+| m_id | title      | release_date | m_rank | budget    |
++------+------------+--------------+--------+-----------+
+|    1 | Sholay     | 1975-08-15   |     92 |  25000000 |
+|    2 | K3G        | 2001-12-14   |     75 |  13000000 |
+|    3 | Inception  | 2010-07-16   |     88 | 160000000 |
+|    4 | Avatar     | 2009-12-18   |     78 | 237000000 |
+|    5 | The Matrix | 1999-03-31   |     87 |  63000000 |
++------+------------+--------------+--------+-----------+
+5 rows in set (0.00 sec)
+
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+mysql> SELECT f_name, l_name
+    -> FROM Actor
+    -> WHERE a_id IN (
+    ->   SELECT a_id
+    ->   FROM Cast
+    ->   WHERE m_id IN (
+    ->     SELECT m_id
+    ->     FROM Movie
+    ->     WHERE title IN ('Sholay', 'K3G')
+    ->   )
+    -> );
++------------+----------+
+| f_name     | l_name   |
++------------+----------+
+| Amitabh    | Bachchan |
+| Dharmendra | Deol     |
+| Hrithik    | Roshan   |
++------------+----------+
+3 rows in set (0.00 sec)
+
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
+mysql> SELECT (
+    ->     SELECT title
+    ->     FROM Movie
+    ->     WHERE m_id = c.m_id
+    ->   ) AS movie_title,
+    ->   (
+    ->     SELECT CONCAT(fname, ' ', lname)
+    ->     FROM Director
+    ->     WHERE d_id = (
+    ->       SELECT d_id
+    ->       FROM Direct
+    ->       WHERE m_id = c.m_id
+    ->     )
+    ->   ) AS director_name
+    -> FROM Cast c
+    -> WHERE c.m_id IN (
+    ->   SELECT m_id
+    ->   FROM Movie
+    ->   WHERE YEAR(release_date) = 2009
+    -> )
+    -> ORDER BY (
+    ->     SELECT m_rank
+    ->     FROM Movie
+    ->     WHERE m_id = c.m_id
+    ->   ) DESC
+    -> LIMIT 5;
++-------------+---------------+
+| movie_title | director_name |
++-------------+---------------+
+| Avatar      | James Cameron |
++-------------+---------------+
+1 row in set (0.00 sec)
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+mysql> SELECT title, (
+    ->     SELECT COUNT(a_id)
+    ->     FROM Cast
+    ->     WHERE m_id = m.m_id
+    ->   ) AS total_actors
+    -> FROM Movie m;
++------------+--------------+
+| title      | total_actors |
++------------+--------------+
+| Sholay     |            2 |
+| K3G        |            1 |
+| Inception  |            1 |
+| Avatar     |            1 |
+| The Matrix |            1 |
++------------+--------------+
+5 rows in set (0.00 sec)
+
+
+DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+
+mysql> SELECT role
+    -> FROM Cast
+    -> WHERE a_id IN (
+    ->   SELECT a_id
+    ->   FROM Actor
+    ->   WHERE salary > 200000
+    -> );
++-------+
+| role  |
++-------+
+| Veeru |
+| Jai   |
+| Neo   |
+| Rohan |
+| Cobb  |
+| Neo   |
++-------+
+6 rows in set (0.00 sec)
+
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
+mysql> SELECT title, release_date
+    -> FROM Movie
+    -> WHERE m_id IN (
+    ->   SELECT m_id
+    ->   FROM Direct
+    ->   WHERE d_id IN (
+    ->     SELECT d_id
+    ->     FROM Director
+    ->     WHERE gender = 'Female'
+    ->   )
+    -> );
++------------+--------------+
+| title      | release_date |
++------------+--------------+
+| The Matrix | 1999-03-31   |
++------------+--------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT title, f_name, l_name, salary
+    -> FROM Actor
+    -> WHERE a_id IN (
+    ->   SELECT a_id
+    ->   FROM Cast
+    ->   WHERE (m_id, salary) IN (
+    ->     SELECT m_id, MAX(salary)
+    ->     FROM Cast
+    ->     GROUP BY m_id
+    ->   )
+    -> );
+ERROR 1054 (42S22): Unknown column 'title' in 'field list'
+mysql> SELECT m.title, a.f_name, a.l_name, a.salary
+    -> FROM Movie m
+    -> WHERE (m.m_id, a.salary) IN (
+    ->   SELECT c.m_id, MAX(a.salary)
+    ->   FROM Cast c
+    ->   JOIN Actor a ON c.a_id = a.a_id
+    ->   GROUP BY c.m_id
+    -> );
+ERROR 1054 (42S22): Unknown column 'a.f_name' in 'field list'
+
+
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+
+
+mysql> SELECT m.title, a.f_name, a.l_name, a.salary
+    -> FROM Movie m , Actor a
+    -> WHERE (m.m_id, a.salary) IN (
+    ->   SELECT c.m_id, MAX(a.salary)
+    ->   FROM Cast c
+    ->   JOIN Actor a ON c.a_id = a.a_id
+    ->   GROUP BY c.m_id
+    -> );
++------------+------------+----------+--------+
+| title      | f_name     | l_name   | salary |
++------------+------------+----------+--------+
+| Sholay     | Amitabh    | Bachchan | 500000 |
+| The Matrix | Dharmendra | Deol     | 400000 |
+| K3G        | Hrithik    | Roshan   | 600000 |
+| Inception  | Leonardo   | DiCaprio | 800000 |
+| Avatar     | Keanu      | Reeves   | 350000 |
++------------+------------+----------+--------+
+5 rows in set (0.00 sec)
+
+
+
+
+
+JOINS JOINS JOINS JOINS JOINS JOINS JOINS JOINS JOINS JOINS
+
+
+
+
+mysql> use movie;
+Database changed
+mysql> CREATE TABLE Movie (
+    ->     m_id INT PRIMARY KEY,
+    ->     title VARCHAR(255),
+    ->     release_date DATE,
+    ->     m_rank INT,
+    ->     budget DECIMAL(10, 2)
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE TABLE Director (
+    ->     d_id INT PRIMARY KEY,
+    ->     fname VARCHAR(50),
+    ->     lname VARCHAR(50),
+    ->     gender VARCHAR(10)
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE TABLE Direct (
+    ->     m_id INT,
+    ->     d_id INT,
+    ->     FOREIGN KEY (m_id) REFERENCES Movie(m_id),
+    ->     FOREIGN KEY (d_id) REFERENCES Director(d_id)
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> CREATE TABLE Actor (
+    ->     a_id INT PRIMARY KEY,
+    ->     f_name VARCHAR(50),
+    ->     l_name VARCHAR(50),
+    ->     salary DECIMAL(10, 2)
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> CREATE TABLE Cast (
+    ->     m_id INT,
+    ->     a_id INT,
+    ->     role VARCHAR(100),
+    ->     FOREIGN KEY (m_id) REFERENCES Movie(m_id),
+    ->     FOREIGN KEY (a_id) REFERENCES Actor(a_id)
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> INSERT INTO Movie (m_id, title, release_date, m_rank, budget) VALUES
+    -> (1, 'Sholay', '1975-08-15', 5, 2000000),
+    -> (2, 'Dangal', '2016-12-23', 4, 2500000),
+    -> (3, 'K3', '2013-11-01', 3, 1800000),
+    -> (4, 'Dilwale', '2015-12-18', 2, 2200000),
+    -> (5, '3 Idiots', '2009-12-25', 1, 2100000);
+Query OK, 5 rows affected (0.00 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Director (d_id, fname, lname, gender) VALUES
+    -> (1, 'Ramesh', 'Sippy', 'Male'),
+    -> (2, 'Nitesh', 'Tiwar', 'Male'),
+    -> (3, 'Karan', 'Johar', 'Male'),
+    -> (4, 'Rohit', 'Shetty', 'Male'),
+    -> (5, 'Rajkumar', 'Hirani', 'Male');
+Query OK, 5 rows affected (0.00 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Direct (m_id, d_id) VALUES
+    -> (1, 1),
+    -> (2, 2),
+    -> (3, 3),
+    -> (4, 4),
+    -> (5, 5);
+Query OK, 5 rows affected (0.00 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Actor (a_id, f_name, l_name, salary) VALUES
+    -> (1, 'Amitabh', 'Bachchan', 5000000),
+    -> (2, 'Aamir', 'Khan', 4500000),
+    -> (3, 'Shah Rukh', 'Khan', 4800000),
+    -> (4, 'Kajol', 'Devgn', 3500000),
+    -> (5, 'Ranbir', 'Kapoor', 4000000);
+Query OK, 5 rows affected (0.00 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO Cast (m_id, a_id, role) VALUES
+    -> (1, 1, 'Gabbar'),
+    -> (2, 2, 'Mahavir Singh Phogat'),
+    -> (3, 3, 'Rahul'),
+    -> (4, 3, 'Raj'),
+    -> (4, 4, 'Meera'),
+    -> (4, 5, 'Veer'),
+    -> (5, 2, 'Rancho'),
+    -> (5, 4, 'Chatur');
+Query OK, 8 rows affected (0.00 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+
+mysql> select * from movie;
++------+----------+--------------+--------+------------+
+| m_id | title    | release_date | m_rank | budget     |
++------+----------+--------------+--------+------------+
+|    1 | Sholay   | 1975-08-15   |      5 | 2000000.00 |
+|    2 | Dangal   | 2016-12-23   |      4 | 2500000.00 |
+|    3 | K3       | 2013-11-01   |      3 | 1800000.00 |
+|    4 | Dilwale  | 2015-12-18   |      2 | 2200000.00 |
+|    5 | 3 Idiots | 2009-12-25   |      1 | 2100000.00 |
++------+----------+--------------+--------+------------+
+5 rows in set (0.00 sec)
+
+mysql> select * from direct;
++------+------+
+| m_id | d_id |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    3 |
+|    4 |    4 |
+|    5 |    5 |
++------+------+
+5 rows in set (0.00 sec)
+
+mysql> select * from director;
++------+----------+--------+--------+
+| d_id | fname    | lname  | gender |
++------+----------+--------+--------+
+|    1 | Ramesh   | Sippy  | Male   |
+|    2 | Nitesh   | Tiwar  | Male   |
+|    3 | Karan    | Johar  | Male   |
+|    4 | Rohit    | Shetty | Male   |
+|    5 | Rajkumar | Hirani | Male   |
++------+----------+--------+--------+
+5 rows in set (0.00 sec)
+
+mysql> select * from actor;
++------+-----------+----------+------------+
+| a_id | f_name    | l_name   | salary     |
++------+-----------+----------+------------+
+|    1 | Amitabh   | Bachchan | 5000000.00 |
+|    2 | Aamir     | Khan     | 4500000.00 |
+|    3 | Shah Rukh | Khan     | 4800000.00 |
+|    4 | Kajol     | Devgn    | 3500000.00 |
+|    5 | Ranbir    | Kapoor   | 4000000.00 |
++------+-----------+----------+------------+
+5 rows in set (0.00 sec)
+
+mysql> select * from cast;
++------+------+----------------------+
+| m_id | a_id | role                 |
++------+------+----------------------+
+|    1 |    1 | Gabbar               |
+|    2 |    2 | Mahavir Singh Phogat |
+|    3 |    3 | Rahul                |
+|    4 |    3 | Raj                  |
+|    4 |    4 | Meera                |
+|    4 |    5 | Veer                 |
+|    5 |    2 | Rancho               |
+|    5 |    4 | Chatur               |
++------+------+----------------------+
+8 rows in set (0.00 sec)
+
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+mysql> SELECT *
+    -> FROM Movie
+    -> NATURAL JOIN Direct
+    -> NATURAL JOIN Director
+    -> WHERE Director.fname = 'Karan' AND Director.lname = 'Johar'
+    -> ;
++------+------+-------+--------------+--------+------------+-------+-------+--------+
+| d_id | m_id | title | release_date | m_rank | budget     | fname | lname | gender |
++------+------+-------+--------------+--------+------------+-------+-------+--------+
+|    3 |    3 | K3    | 2013-11-01   |      3 | 1800000.00 | Karan | Johar | Male   |
++------+------+-------+--------------+--------+------------+-------+-------+--------+
+1 row in set (0.00 sec)
+
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB
+
+mysql> SELECT Actor.f_name, Actor.l_name, Cast.role
+    -> FROM Actor
+    -> CROSS JOIN Cast;
++-----------+----------+----------------------+
+| f_name    | l_name   | role                 |
++-----------+----------+----------------------+
+| Ranbir    | Kapoor   | Gabbar               |
+| Kajol     | Devgn    | Gabbar               |
+| Shah Rukh | Khan     | Gabbar               |
+| Aamir     | Khan     | Gabbar               |
+| Amitabh   | Bachchan | Gabbar               |
+| Ranbir    | Kapoor   | Mahavir Singh Phogat |
+| Kajol     | Devgn    | Mahavir Singh Phogat |
+| Shah Rukh | Khan     | Mahavir Singh Phogat |
+| Aamir     | Khan     | Mahavir Singh Phogat |
+| Amitabh   | Bachchan | Mahavir Singh Phogat |
+| Ranbir    | Kapoor   | Rahul                |
+| Kajol     | Devgn    | Rahul                |
+| Shah Rukh | Khan     | Rahul                |
+| Aamir     | Khan     | Rahul                |
+| Amitabh   | Bachchan | Rahul                |
+| Ranbir    | Kapoor   | Raj                  |
+| Kajol     | Devgn    | Raj                  |
+| Shah Rukh | Khan     | Raj                  |
+| Aamir     | Khan     | Raj                  |
+| Amitabh   | Bachchan | Raj                  |
+| Ranbir    | Kapoor   | Meera                |
+| Kajol     | Devgn    | Meera                |
+| Shah Rukh | Khan     | Meera                |
+| Aamir     | Khan     | Meera                |
+| Amitabh   | Bachchan | Meera                |
+| Ranbir    | Kapoor   | Veer                 |
+| Kajol     | Devgn    | Veer                 |
+| Shah Rukh | Khan     | Veer                 |
+| Aamir     | Khan     | Veer                 |
+| Amitabh   | Bachchan | Veer                 |
+| Ranbir    | Kapoor   | Rancho               |
+| Kajol     | Devgn    | Rancho               |
+| Shah Rukh | Khan     | Rancho               |
+| Aamir     | Khan     | Rancho               |
+| Amitabh   | Bachchan | Rancho               |
+| Ranbir    | Kapoor   | Chatur               |
+| Kajol     | Devgn    | Chatur               |
+| Shah Rukh | Khan     | Chatur               |
+| Aamir     | Khan     | Chatur               |
+| Amitabh   | Bachchan | Chatur               |
++-----------+----------+----------------------+
+40 rows in set (0.00 sec)
+
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+
+mysql> SELECT Movie.*, Director.*
+    -> FROM Movie
+    -> LEFT JOIN Direct ON Movie.m_id = Direct.m_id
+    -> LEFT JOIN Director ON Direct.d_id = Director.d_id
+    -> WHERE YEAR(Movie.release_date) BETWEEN 2018 AND 2019;
+Empty set (0.00 sec)
+
+mysql> SELECT Movie.*, Director.*
+    -> FROM Movie
+    -> LEFT JOIN Direct ON Movie.m_id = Direct.m_id
+    -> LEFT JOIN Director ON Direct.d_id = Director.d_id
+    -> WHERE YEAR(Movie.release_date) BETWEEN 2015 AND 2025;
++------+---------+--------------+--------+------------+------+--------+--------+--------+
+| m_id | title   | release_date | m_rank | budget     | d_id | fname  | lname  | gender |
++------+---------+--------------+--------+------------+------+--------+--------+--------+
+|    2 | Dangal  | 2016-12-23   |      4 | 2500000.00 |    2 | Nitesh | Tiwar  | Male   |
+|    4 | Dilwale | 2015-12-18   |      2 | 2200000.00 |    4 | Rohit  | Shetty | Male   |
++------+---------+--------------+--------+------------+------+--------+--------+--------+
+2 rows in set (0.00 sec)
+
+
+DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
+
+mysql> SELECT Actor.*
+    -> FROM Actor
+    -> RIGHT JOIN Cast ON Actor.a_id = Cast.a_id
+    -> WHERE Cast.m_id <> (SELECT m_id FROM Movie WHERE title = 'Dangal');
++------+-----------+----------+------------+
+| a_id | f_name    | l_name   | salary     |
++------+-----------+----------+------------+
+|    1 | Amitabh   | Bachchan | 5000000.00 |
+|    3 | Shah Rukh | Khan     | 4800000.00 |
+|    3 | Shah Rukh | Khan     | 4800000.00 |
+|    4 | Kajol     | Devgn    | 3500000.00 |
+|    5 | Ranbir    | Kapoor   | 4000000.00 |
+|    2 | Aamir     | Khan     | 4500000.00 |
+|    4 | Kajol     | Devgn    | 3500000.00 |
++------+-----------+----------+------------+
+7 rows in set (0.00 sec)
+
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
+mysql> SELECT Movie.*, Director.*
+    -> FROM Movie
+    -> LEFT JOIN Direct ON Movie.m_id = Direct.m_id
+    -> LEFT JOIN Director ON Direct.d_id = Director.d_id
+    -> WHERE Movie.m_id NOT IN (SELECT m_id FROM Cast WHERE a_id = (SELECT a_id FROM Actor WHERE f_name = 'Amitabh' AND l_name = 'Bachchan'))
+    -> UNION
+    -> SELECT Movie.*, NULL AS fname, NULL AS lname, NULL AS gender
+    -> FROM Movie
+    -> RIGHT JOIN Cast ON Movie.m_id = Cast.m_id
+    -> WHERE Cast.m_id NOT IN (SELECT m_id FROM Movie WHERE title = 'Shakuntala Devi')
+    -> UNION
+    -> SELECT NULL AS m_id, NULL AS title, NULL AS release_date, NULL AS m_rank, NULL AS budget, Director.*
+    -> FROM Director
+    -> WHERE Director.d_id NOT IN (SELECT d_id FROM Direct WHERE m_id IN (SELECT m_id FROM Movie WHERE title = 'Shakuntala Devi'));
+ERROR 1222 (21000): The used SELECT statements have a different number of columns
+
+mysql> SELECT Movie.*, Director.*
+    -> FROM Movie
+    -> LEFT JOIN Direct ON Movie.m_id = Direct.m_id
+    -> LEFT JOIN Director ON Direct.d_id = Director.d_id
+    -> WHERE Movie.m_id NOT IN (
+    ->     SELECT m_id
+    ->     FROM Cast
+    ->     WHERE a_id = (SELECT a_id FROM Actor WHERE f_name = 'Amitabh' AND l_name = 'Bachchan')
+    -> )
+    -> UNION
+    -> SELECT NULL AS m_id, NULL AS title, NULL AS release_date, NULL AS m_rank, NULL AS budget, NULL AS d_id, NULL AS fname, NULL AS lname, NULL AS gender
+    -> FROM Actor
+    -> WHERE Actor.a_id NOT IN (
+    ->     SELECT a_id
+    ->     FROM Cast
+    ->     WHERE m_id = (SELECT m_id FROM Movie WHERE title = 'Shakunatala Devi')
+    -> )
+    -> ;
++------+----------+--------------+--------+------------+------+----------+--------+--------+
+| m_id | title    | release_date | m_rank | budget     | d_id | fname    | lname  | gender |
++------+----------+--------------+--------+------------+------+----------+--------+--------+
+|    2 | Dangal   | 2016-12-23   |      4 | 2500000.00 |    2 | Nitesh   | Tiwar  | Male   |
+|    3 | K3       | 2013-11-01   |      3 | 1800000.00 |    3 | Karan    | Johar  | Male   |
+|    4 | Dilwale  | 2015-12-18   |      2 | 2200000.00 |    4 | Rohit    | Shetty | Male   |
+|    5 | 3 Idiots | 2009-12-25   |      1 | 2100000.00 |    5 | Rajkumar | Hirani | Male   |
+| NULL | NULL     | NULL         |   NULL |       NULL | NULL | NULL     | NULL   | NULL   |
++------+----------+--------------+--------+------------+------+----------+--------+--------+
+5 rows in set (0.01 sec)
+
+mysql>

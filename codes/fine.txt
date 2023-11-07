@@ -1,0 +1,34 @@
+mysql> CREATE PROCEDURE CalculateFine(IN p_Roll_no INT, IN p_NameofBook VARCHAR(255))
+    -> BEGIN
+    ->     DECLARE v_DateofIssue DATE;
+    ->     DECLARE v_CurrentDate DATE;
+    ->     DECLARE v_DaysDiff INT;
+    ->     DECLARE v_FineAmt DECIMAL(10, 2);
+    ->     DECLARE v_status CHAR(1);
+    ->     DECLARE MESSAGE_TEXT VARCHAR(255);
+    ->     SELECT DateofIssue, Status INTO v_DateofIssue, v_status
+    ->     FROM Borrower
+    ->     WHERE Roll_no = p_Roll_no AND NameofBook = p_NameofBook;
+    ->     IF v_DateofIssue IS NULL THEN
+    ->         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Book not found for the specified user.';
+    ->     ELSEIF v_status = 'R' THEN
+    ->         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Book is already returned !!!';
+    ->     ELSE
+    ->         SET v_CurrentDate = CURDATE();
+    ->         SET v_DaysDiff = DATEDIFF(v_CurrentDate, v_DateofIssue);
+    ->         IF v_DaysDiff BETWEEN 15 AND 30 THEN
+    ->             SET v_FineAmt = v_DaysDiff * 5;
+    ->         ELSEIF v_DaysDiff > 30 THEN
+    ->             SET v_FineAmt = v_DaysDiff * 50;
+    ->         ELSE
+    ->             SET v_FineAmt = 0;
+    ->         END IF;
+    ->         IF v_FineAmt > 0 THEN
+    ->             INSERT INTO Fine (Roll_no, Date, Amt)
+   ->             VALUES (p_Roll_no, v_CurrentDate, v_FineAmt);
+    ->         END IF;
+    ->         UPDATE Borrower
+    ->         SET Status = 'R'
+    ->         WHERE Roll_no = p_Roll_no AND NameofBook = p_NameofBook;
+    ->     END IF;
+    -> END//

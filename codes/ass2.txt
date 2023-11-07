@@ -1,0 +1,617 @@
+Enter password: *********
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 11
+Server version: 8.1.0 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2023, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> create database movie
+    -> create database movie;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'create database movie' at line 2
+mysql> create database movie;
+Query OK, 1 row affected (0.05 sec)
+
+mysql> show database;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'database' at line 1
+mysql> -- Table Creation
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Movie (
+    ->     m_id INT PRIMARY KEY,
+    ->     title VARCHAR(255),
+    ->     release_date DATE,
+    ->     rank VARCHAR(1)
+    -> );
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'rank VARCHAR(1)
+)' at line 5
+mysql>
+mysql> CREATE TABLE Director (
+    ->     d_id INT PRIMARY KEY,
+    ->     fname VARCHAR(255),
+    ->     lname VARCHAR(255),
+    ->     gender CHAR(1)
+    -> );
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> CREATE TABLE Direct (
+    ->     m_id INT,
+    ->     d_id INT,
+    ->     FOREIGN KEY (m_id) REFERENCES Movie(m_id),
+    ->     FOREIGN KEY (d_id) REFERENCES Director(d_id)
+    -> );
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> CREATE TABLE Actor (
+    ->     a_id INT PRIMARY KEY,
+    ->     f_name VARCHAR(255),
+    ->     l_name VARCHAR(255)
+    -> );
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> CREATE TABLE Cast (
+    ->     m_id INT,
+    ->     a_id INT,
+    ->     role VARCHAR(255),
+    ->     FOREIGN KEY (m_id) REFERENCES Movie(m_id),
+    ->     FOREIGN KEY (a_id) REFERENCES Actor(a_id)
+    -> );
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> -- Views
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE VIEW MovieDirectedByXYZ AS
+    -> SELECT m.title, m.release_date, m.rank
+    -> FROM Movie m
+    -> JOIN Direct d ON m.m_id = d.m_id
+    -> JOIN Director dir ON d.d_id = dir.d_id
+    -> WHERE dir.fname = 'XYZ';
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> -- Rename the view
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> ALTER VIEW MovieDirectedByXYZ RENAME TO MovieDirectedByXYZWithRankA;
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> -- DML Operations on Views
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO MovieDirectedByXYZWithRankA (title, release_date, rank)
+    -> VALUES ('New Movie', '2023-08-09', 'A');
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'rank)
+VALUES ('New Movie', '2023-08-09', 'A')' at line 1
+mysql>
+mysql> DELETE FROM MovieDirectedByXYZWithRankA WHERE title = 'Some Movie';
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> UPDATE MovieDirectedByXYZWithRankA
+    -> SET rank = 'B'
+    -> WHERE title = 'Another Movie';
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'rank = 'B'
+WHERE title = 'Another Movie'' at line 2
+mysql>
+mysql> -- Indexes
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE INDEX idx_Actor ON Actor (a_id);
+ERROR 1046 (3D000): No database selected
+mysql> CREATE INDEX idx_Cast ON Cast (m_id, a_id);
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> -- Sequences
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE SEQUENCE movie_seq START 1001;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SEQUENCE movie_seq START 1001' at line 1
+mysql> CREATE SEQUENCE actor_seq START 2001;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SEQUENCE actor_seq START 2001' at line 1
+mysql>
+mysql> -- Queries
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> -- 1. Insert values into above created tables
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Movie (m_id, title, release_date, rank)
+    -> VALUES (NEXTVAL('movie_seq'), 'Movie 1', '2022-01-01', 'A');
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'rank)
+VALUES (NEXTVAL('movie_seq'), 'Movie 1', '2022-01-01', 'A')' at line 1
+mysql>
+mysql> -- 2. Insert values into only selected columns
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Movie (title, release_date)
+    -> VALUES ('Movie 2', '2023-02-15');
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> -- 3. Select all values from Movie and Actor tables
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM Movie;
+ERROR 1046 (3D000): No database selected
+mysql> SELECT * FROM Actor;
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> -- 4. Select m-ID and title from Movie table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT m_id, title FROM Movie;
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> -- 5. Select details of movie directed by "Yash Chopra"
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT m.*
+    -> FROM Movie m
+    -> JOIN Direct d ON m.m_id = d.m_id
+    -> JOIN Director dir ON d.d_id = dir.d_id
+    -> WHERE dir.fname = 'Yash' AND dir.lname = 'Chopra';
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> -- 6. Select distinct first and last names from Actor table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT DISTINCT f_name, l_name FROM Actor;
+ERROR 1046 (3D000): No database selected
+mysql>
+mysql> -- ... (continue with the remaining queries)
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> use database movie
+ERROR 1049 (42000): Unknown database 'database'
+mysql> use database movie;
+ERROR 1049 (42000): Unknown database 'database'
+mysql> use movie;
+Database changed
+mysql> -- Table Creation
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE TABLE Movie (
+    ->     m_id INT PRIMARY KEY,
+    ->     title VARCHAR(255),
+    ->     release_date DATE,
+    ->     rank VARCHAR(1)
+    -> );
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'rank VARCHAR(1)
+)' at line 5
+mysql>
+mysql> CREATE TABLE Director (
+    ->     d_id INT PRIMARY KEY,
+    ->     fname VARCHAR(255),
+    ->     lname VARCHAR(255),
+    ->     gender CHAR(1)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql>
+mysql> CREATE TABLE Direct (
+    ->     m_id INT,
+    ->     d_id INT,
+    ->     FOREIGN KEY (m_id) REFERENCES Movie(m_id),
+    ->     FOREIGN KEY (d_id) REFERENCES Director(d_id)
+    -> );
+ERROR 1824 (HY000): Failed to open the referenced table 'movie'
+mysql>
+mysql> CREATE TABLE Actor (
+    ->     a_id INT PRIMARY KEY,
+    ->     f_name VARCHAR(255),
+    ->     l_name VARCHAR(255)
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql>
+mysql> CREATE TABLE Cast (
+    ->     m_id INT,
+    ->     a_id INT,
+    ->     role VARCHAR(255),
+    ->     FOREIGN KEY (m_id) REFERENCES Movie(m_id),
+    ->     FOREIGN KEY (a_id) REFERENCES Actor(a_id)
+    -> );
+ERROR 1824 (HY000): Failed to open the referenced table 'movie'
+mysql>
+mysql> -- Views
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE VIEW MovieDirectedByXYZ AS
+    -> SELECT m.title, m.release_date, m.rank
+    -> FROM Movie m
+    -> JOIN Direct d ON m.m_id = d.m_id
+    -> JOIN Director dir ON d.d_id = dir.d_id
+    -> WHERE dir.fname = 'XYZ';
+ERROR 1146 (42S02): Table 'movie.movie' doesn't exist
+mysql>
+mysql> -- Rename the view
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> ALTER VIEW MovieDirectedByXYZ RENAME TO MovieDirectedByXYZWithRankA;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'RENAME TO MovieDirectedByXYZWithRankA' at line 1
+mysql>
+mysql> -- DML Operations on Views
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO MovieDirectedByXYZWithRankA (title, release_date, rank)
+    -> VALUES ('New Movie', '2023-08-09', 'A');
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'rank)
+VALUES ('New Movie', '2023-08-09', 'A')' at line 1
+mysql>
+mysql> DELETE FROM MovieDirectedByXYZWithRankA WHERE title = 'Some Movie';
+ERROR 1146 (42S02): Table 'movie.moviedirectedbyxyzwithranka' doesn't exist
+mysql>
+mysql> UPDATE MovieDirectedByXYZWithRankA
+    -> SET rank = 'B'
+    -> WHERE title = 'Another Movie';
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'rank = 'B'
+WHERE title = 'Another Movie'' at line 2
+mysql>
+mysql> -- Indexes
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE INDEX idx_Actor ON Actor (a_id);
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> CREATE INDEX idx_Cast ON Cast (m_id, a_id);
+ERROR 1146 (42S02): Table 'movie.cast' doesn't exist
+mysql>
+mysql> -- Sequences
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE SEQUENCE movie_seq START 1001;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SEQUENCE movie_seq START 1001' at line 1
+mysql> CREATE SEQUENCE actor_seq START 2001;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SEQUENCE actor_seq START 2001' at line 1
+mysql>
+mysql> -- Queries
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> -- 1. Insert values into above created tables
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Movie (m_id, title, release_date, rank)
+    -> VALUES (NEXTVAL('movie_seq'), 'Movie 1', '2022-01-01', 'A');
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'rank)
+VALUES (NEXTVAL('movie_seq'), 'Movie 1', '2022-01-01', 'A')' at line 1
+mysql>
+mysql> -- 2. Insert values into only selected columns
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Movie (title, release_date)
+    -> VALUES ('Movie 2', '2023-02-15');
+ERROR 1146 (42S02): Table 'movie.movie' doesn't exist
+mysql>
+mysql> -- 3. Select all values from Movie and Actor tables
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT * FROM Movie;
+ERROR 1146 (42S02): Table 'movie.movie' doesn't exist
+mysql> SELECT * FROM Actor;
+Empty set (0.00 sec)
+
+mysql>
+mysql> -- 4. Select m-ID and title from Movie table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT m_id, title FROM Movie;
+ERROR 1146 (42S02): Table 'movie.movie' doesn't exist
+mysql>
+mysql> -- 5. Select details of movie directed by "Yash Chopra"
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT m.*
+    -> FROM Movie m
+    -> JOIN Direct d ON m.m_id = d.m_id
+    -> JOIN Director dir ON d.d_id = dir.d_id
+    -> WHERE dir.fname = 'Yash' AND dir.lname = 'Chopra';
+ERROR 1146 (42S02): Table 'movie.movie' doesn't exist
+mysql>
+mysql> -- 6. Select distinct first and last names from Actor table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT DISTINCT f_name, l_name FROM Actor;
+Empty set (0.00 sec)
+
+mysql>
+mysql> -- ... (continue with the remaining queries)
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> clear
+mysql> drop database movie
+    -> ;
+Query OK, 2 rows affected (0.01 sec)
+
+mysql> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+4 rows in set (0.00 sec)
+
+mysql> create database movie;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| movie              |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+5 rows in set (0.00 sec)
+
+mysql> use database movie;
+ERROR 1049 (42000): Unknown database 'database'
+mysql> use movie;
+Database changed
+mysql> CREATE TABLE Movie (
+    ->     m_id INT PRIMARY KEY,
+    ->     title VARCHAR(255),
+    ->     release_date DATE,
+    ->     rank VARCHAR(1)
+    -> );
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'rank VARCHAR(1)
+)' at line 5
+mysql> CREATE TABLE Movie (
+    ->     m_id INT PRIMARY KEY,
+    ->     title VARCHAR(255),
+    ->     release_date DATE,
+    ->     `rank` VARCHAR(1)
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> show tables;
++-----------------+
+| Tables_in_movie |
++-----------------+
+| movie           |
++-----------------+
+1 row in set (0.00 sec)
+
+mysql> CREATE TABLE Director (
+    ->     d_id INT PRIMARY KEY,
+    ->     fname VARCHAR(255),
+    ->     lname VARCHAR(255),
+    ->     gender CHAR(1)
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> CREATE TABLE Direct (
+    ->     m_id INT,
+    ->     d_id INT,
+    ->     FOREIGN KEY (m_id) REFERENCES Movie(m_id),
+    ->     FOREIGN KEY (d_id) REFERENCES Director(d_id)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> CREATE TABLE Actor (
+    ->     a_id INT PRIMARY KEY,
+    ->     f_name VARCHAR(255),
+    ->     l_name VARCHAR(255)
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> CREATE TABLE Cast (
+    ->     m_id INT,
+    ->     a_id INT,
+    ->     role VARCHAR(255),
+    ->     FOREIGN KEY (m_id) REFERENCES Movie(m_id),
+    ->     FOREIGN KEY (a_id) REFERENCES Actor(a_id)
+    -> );
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> CREATE VIEW MovieDirectedByXYZ AS
+    -> SELECT m.title, m.release_date, m.`rank`
+    -> FROM Movie m
+    -> JOIN Direct d ON m.m_id = d.m_id
+    -> JOIN Director dir ON d.d_id = dir.d_id
+    -> WHERE dir.fname = 'XYZ';
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> -- Rename the view
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> ALTER VIEW MovieDirectedByXYZ RENAME TO MovieDirectedByXYZWithRankA;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'RENAME TO MovieDirectedByXYZWithRankA' at line 1
+mysql>
+mysql> -- DML Operations on Views
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO MovieDirectedByXYZWithRankA (title, release_date, `rank`)
+    -> VALUES ('New Movie', '2023-08-09', 'A');
+ERROR 1146 (42S02): Table 'movie.moviedirectedbyxyzwithranka' doesn't exist
+mysql>
+mysql> DELETE FROM MovieDirectedByXYZWithRankA WHERE title = 'Some Movie';
+ERROR 1146 (42S02): Table 'movie.moviedirectedbyxyzwithranka' doesn't exist
+mysql>
+mysql> UPDATE MovieDirectedByXYZWithRankA
+    -> SET `rank` = 'B'
+    -> WHERE title = 'Another Movie';
+ERROR 1146 (42S02): Table 'movie.moviedirectedbyxyzwithranka' doesn't exist
+mysql>
+mysql> -- Indexes
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE INDEX idx_Actor ON Actor (a_id);
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> show tables;
++--------------------+
+| Tables_in_movie    |
++--------------------+
+| actor              |
+| cast               |
+| direct             |
+| director           |
+| movie              |
+| moviedirectedbyxyz |
++--------------------+
+6 rows in set (0.00 sec)
+
+mysql> -- Create a new view with the desired name and select data from the original view
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE VIEW MovieDirectedByXYZWithRankA AS
+    -> SELECT title, release_date, `rank`
+    -> FROM MovieDirectedByXYZ;
+Query OK, 0 rows affected (0.03 sec)
+
+mysql>
+mysql> -- Drop the original view
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> DROP VIEW MovieDirectedByXYZ;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> INSERT INTO MovieDirectedByXYZWithRankA (title, release_date, `rank`)
+    -> VALUES ('New Movie', '2023-08-09', 'A');
+ERROR 1356 (HY000): View 'movie.moviedirectedbyxyzwithranka' references invalid table(s) or column(s) or function(s) or definer/invoker of view lack rights to use them
+mysql>
+mysql> DELETE FROM MovieDirectedByXYZWithRankA WHERE title = 'Some Movie';
+ERROR 1356 (HY000): View 'movie.moviedirectedbyxyzwithranka' references invalid table(s) or column(s) or function(s) or definer/invoker of view lack rights to use them
+mysql>
+mysql> UPDATE MovieDirectedByXYZWithRankA
+    -> SET `rank` = 'B'
+    -> WHERE title = 'Another Movie';
+ERROR 1356 (HY000): View 'movie.moviedirectedbyxyzwithranka' references invalid table(s) or column(s) or function(s) or definer/invoker of view lack rights to use them
+mysql>
+mysql> -- Indexes
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE INDEX idx_Actor ON Actor (a_id);
+ERROR 1061 (42000): Duplicate key name 'idx_Actor'
+mysql> -- Insert data into Movie table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Movie (m_id, title, release_date, `rank`)
+    -> VALUES
+    ->     (1001, 'Movie 1', '2022-01-01', 'A'),
+    ->     (1002, 'Movie 2', '2023-02-15', 'B'),
+    ->     (1003, 'Movie 3', '2021-05-20', 'C');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> -- Insert data into Director table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Director (d_id, fname, lname, gender)
+    -> VALUES
+    ->     (2001, 'Yash', 'Chopra', 'M'),
+    ->     (2002, 'Rajkumar', 'Hirani', 'M'),
+    ->     (2003, 'Sanjay', 'Leela Bhansali', 'M');
+Query OK, 3 rows affected (0.00 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> -- Insert data into Direct table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Direct (m_id, d_id)
+    -> VALUES
+    ->     (1001, 2001),
+    ->     (1002, 2002),
+    ->     (1003, 2003);
+Query OK, 3 rows affected (0.00 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> -- Insert data into Actor table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Actor (a_id, f_name, l_name)
+    -> VALUES
+    ->     (3001, 'Amitabh', 'Bachchan'),
+    ->     (3002, 'Aamir', 'Khan'),
+    ->     (3003, 'Kareena', 'Kapoor');
+Query OK, 3 rows affected (0.00 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> -- Insert data into Cast table
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO Cast (m_id, a_id, role)
+    -> VALUES
+    ->     (1001, 3001, 'Protagonist'),
+    ->     (1001, 3002, 'Antagonist'),
+    ->     (1002, 3002, 'Lead'),
+    ->     (1002, 3003, 'Supporting');
+Query OK, 4 rows affected (0.01 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> select * from Actor;
++------+---------+----------+
+| a_id | f_name  | l_name   |
++------+---------+----------+
+| 3001 | Amitabh | Bachchan |
+| 3002 | Aamir   | Khan     |
+| 3003 | Kareena | Kapoor   |
++------+---------+----------+
+3 rows in set (0.00 sec)
+
+mysql> select * from Movie;
++------+---------+--------------+------+
+| m_id | title   | release_date | rank |
++------+---------+--------------+------+
+| 1001 | Movie 1 | 2022-01-01   | A    |
+| 1002 | Movie 2 | 2023-02-15   | B    |
+| 1003 | Movie 3 | 2021-05-20   | C    |
++------+---------+--------------+------+
+3 rows in set (0.00 sec)
+
+mysql> select * from Director;
++------+----------+----------------+--------+
+| d_id | fname    | lname          | gender |
++------+----------+----------------+--------+
+| 2001 | Yash     | Chopra         | M      |
+| 2002 | Rajkumar | Hirani         | M      |
+| 2003 | Sanjay   | Leela Bhansali | M      |
++------+----------+----------------+--------+
+3 rows in set (0.00 sec)
+
+mysql> select * from Direct;
++------+------+
+| m_id | d_id |
++------+------+
+| 1001 | 2001 |
+| 1002 | 2002 |
+| 1003 | 2003 |
++------+------+
+3 rows in set (0.00 sec)
+
+mysql> select * from Actor;
++------+---------+----------+
+| a_id | f_name  | l_name   |
++------+---------+----------+
+| 3001 | Amitabh | Bachchan |
+| 3002 | Aamir   | Khan     |
+| 3003 | Kareena | Kapoor   |
++------+---------+----------+
+3 rows in set (0.00 sec)
+
+mysql> select * from Cast;
++------+------+-------------+
+| m_id | a_id | role        |
++------+------+-------------+
+| 1001 | 3001 | Protagonist |
+| 1001 | 3002 | Antagonist  |
+| 1002 | 3002 | Lead        |
+| 1002 | 3003 | Supporting  |
++------+------+-------------+
+4 rows in set (0.00 sec)
+
+mysql>

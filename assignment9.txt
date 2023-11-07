@@ -1,0 +1,38 @@
+> use assignment9;
+switched to db assignment9
+> db.student.insert({name:'abc',age:19,branch:'comp',rollno:1});
+WriteResult({ "nInserted" : 1 })
+> db.student.insert({name:'def',age:20,branch:'it',rollno:2});
+WriteResult({ "nInserted" : 1 })
+> db.student.insert({name:'ghi',age:19,branch:'entc',rollno:3});
+WriteResult({ "nInserted" : 1 })
+> db.student.insert({name:'jkl',age:21,branch:'mech',rollno:4});
+WriteResult({ "nInserted" : 1 })
+> db.student.find()
+{ "_id" : ObjectId("6528dd10075c18952225ffeb"), "name" : "abc", "age" : 19, "branch" : "comp", "rollno" : 1 }
+{ "_id" : ObjectId("6528dd25075c18952225ffec"), "name" : "def", "age" : 20, "branch" : "it", "rollno" : 2 }
+{ "_id" : ObjectId("6528dd38075c18952225ffed"), "name" : "ghi", "age" : 19, "branch" : "entc", "rollno" : 3 }
+{ "_id" : ObjectId("6528dd4d075c18952225ffee"), "name" : "jkl", "age" : 21, "branch" : "mech", "rollno" : 4 }
+> db.student.find({name:'abc'})
+{ "_id" : ObjectId("6528dd10075c18952225ffeb"), "name" : "abc", "age" : 19, "branch" : "comp", "rollno" : 1 }
+> db.student.updateMany({name:'ghi'},{$set:{age: 18}})
+{ "acknowledged" : true, "matchedCount" : 1, "modifiedCount" : 1 }
+> db.student.find()
+{ "_id" : ObjectId("6528dd10075c18952225ffeb"), "name" : "abc", "age" : 19, "branch" : "comp", "rollno" : 1 }
+{ "_id" : ObjectId("6528dd25075c18952225ffec"), "name" : "def", "age" : 20, "branch" : "it", "rollno" : 2 }
+{ "_id" : ObjectId("6528dd38075c18952225ffed"), "name" : "ghi", "age" : 18, "branch" : "entc", "rollno" : 3 }
+{ "_id" : ObjectId("6528dd4d075c18952225ffee"), "name" : "jkl", "age" : 21, "branch" : "mech", "rollno" : 4 }
+> db.student.find({$or:[{age:18},{rollno:2}]})
+{ "_id" : ObjectId("6528dd25075c18952225ffec"), "name" : "def", "age" : 20, "branch" : "it", "rollno" : 2 }
+{ "_id" : ObjectId("6528dd38075c18952225ffed"), "name" : "ghi", "age" : 18, "branch" : "entc", "rollno" : 3 }
+> db.student.find({$and:[{age:18},{rollno:3}]})
+{ "_id" : ObjectId("6528dd38075c18952225ffed"), "name" : "ghi", "age" : 18, "branch" : "entc", "rollno" : 3 }
+> db.student.deleteOne({rollno:4})
+{ "acknowledged" : true, "deletedCount" : 1 }
+> db.student.find()
+{ "_id" : ObjectId("6528dd10075c18952225ffeb"), "name" : "abc", "age" : 19, "branch" : "comp", "rollno" : 1 }
+{ "_id" : ObjectId("6528dd25075c18952225ffec"), "name" : "def", "age" : 20, "branch" : "it", "rollno" : 2 }
+{ "_id" : ObjectId("6528dd38075c18952225ffed"), "name" : "ghi", "age" : 18, "branch" : "entc", "rollno" : 3 }
+> db.getCollectionNames()
+[ "student" ]
+> 
